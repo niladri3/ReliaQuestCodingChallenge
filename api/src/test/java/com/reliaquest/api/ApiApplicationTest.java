@@ -69,7 +69,64 @@ class ApiApplicationTest {
         assertEquals(39, result.getEmployeeAge());
         assertEquals("Central Developer", result.getEmployeeTitle());
     }
-    
+
+    @Test
+    void getAllEmployeesReturnsList() {
+        Mockito.when(rqEmployeeClient.getEmployees())
+                .thenReturn(createdEmployeeResponseList);
+
+        List<EmployeeResponse> employeeResponse = employeeService.getAllEmployees();
+        assertEquals(15, employeeResponse.size());
+        assertTrue(employeeResponse.containsAll(createdEmployeeResponseList));
+    }
+
+    @Test
+    void searchEmployeesByNameFiltersResults() {
+        Mockito.when(rqEmployeeClient.getEmployees())
+                .thenReturn(createdEmployeeResponseList);
+
+        List<EmployeeResponse> result = employeeService.getSearchableEmployees("ber");
+        assertEquals(2, result.size());
+        assertEquals("Bernie Walsh", result.get(0).getEmployeeName());
+        assertEquals("Beryl Buckridge", result.get(1).getEmployeeName());
+    }
+
+    @Test
+    void getHighestSalaryReturnsMax() {
+        Mockito.when(rqEmployeeClient.getEmployees())
+                .thenReturn(createdEmployeeResponseList);
+
+        Integer highest = employeeService.getHighestEmployeeSalary();
+        assertEquals(477439, highest);
+    }
+
+    @Test
+    void getTopTenHighestEarningNames() {
+        Mockito.when(rqEmployeeClient.getEmployees())
+                .thenReturn(createdEmployeeResponseList);
+        List<String> names = employeeService.getTopTenHighestEarningEmployeeName();
+        assertEquals(List.of("Bernie Walsh", "Benedict Waters", "Mozell Becker", "Denice Jaskolski", "Stella Sauer", "Avery Leuschke", "Vickie Walter Jr.",
+                "Miss Dorian Sawayn", "Dwight Schumm", "Lavinia Mraz"), names);
+    }
+
+    @Test
+    void deleteValidEmployeeReturnsName() {
+        Mockito.when(rqEmployeeClient.getEmployees())
+                .thenReturn(createdEmployeeResponseList);
+        Mockito.when(rqEmployeeClient.deleteEmployeeByName(RQEmployeeDeleteRequest.builder().name("Lavinia Mraz").build()))
+                .thenReturn("Lavinia Mraz");
+
+        String response = employeeService.deleteEmployee("fa93e301-f630-446a-a3ec-cde926c6ed30");
+        assertEquals("Lavinia Mraz", response);
+    }
+
+    @Test
+    void deleteWithInvalidIdThrowsException() {
+        Mockito.when(rqEmployeeClient.getEmployees())
+                .thenReturn(List.of());
+        assertThrows(ClientException.class, () ->
+                employeeService.deleteEmployee(UUID.randomUUID().toString()));
+    }
 
     private List<EmployeeResponse> createDummyEmployees() {
         return Arrays.asList(
