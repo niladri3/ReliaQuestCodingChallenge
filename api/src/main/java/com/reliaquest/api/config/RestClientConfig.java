@@ -31,7 +31,7 @@ public class RestClientConfig {
                     log.error("Failure in processing the request. ErrorCode :{}, ErrorMessage :{}", response.getStatusCode(), message);
                     if (HttpStatus.TOO_MANY_REQUESTS.equals(response.getStatusCode())) {
                         throw new ClientException(response.getStatusCode(),
-                                "Too many requests send to mock server. Please wait and try again.");
+                                "Too many requests send to Employee Server. Please wait and try again.");
                     } else {
                         throw new ClientException(response.getStatusCode(), message);
                     }
